@@ -10,6 +10,7 @@ class IndexInverter:
         """
         self.index = {}
         self.stopwords = {}
+        self.stemmer = SpanishStemmer()
         if not self.loadIndex():
             self.readDocuments()
             self.writeIndex()
@@ -41,10 +42,9 @@ class IndexInverter:
         There's no lemmatizer for Spanish :()
         """
         #Stemming
-        stemmer = SpanishStemmer()
         processed_tokens = set()
         for token in tokens:
-            processed_tokens.add(stemmer.stem(token))
+            processed_tokens.add(self.stemmer.stem(token))
         return processed_tokens
 
     def _tokenize(self, file, content):
@@ -119,7 +119,19 @@ class IndexInverter:
         return result
     
     def queryANDNOT(self, A, B):
-        pass
+        i = 0
+        j = 0
+        result = []
+        while i < len(A) and j < len(B):
+            if A[i] < B[j]:
+                result.append(A[i])
+                i += 1
+            elif A[i] > B[j]:
+                j += 1
+            else:
+                i += 1
+                j += 1
+        return result
 
     def retrieve(self, query):
         query = query.rstrip(')')
@@ -135,11 +147,15 @@ class IndexInverter:
             A, B = query.split(' AND-NOT ')
             return self.queryANDNOT(self.retrieve(A), self.retrieve(B))
 
+        if query in self.stopwords:
+            return []
+        query = self.stemmer.stem(query)
         return self.index.get(query, [])
 
 
 if __name__ == '__main__':
     ii = IndexInverter()
-    #query = input()
-    query = "Comunidad AND Frodo AND-NOT Gondor"
+    query = input()
+    #query = "Comunidad AND Frodo AND-NOT Gondor"
+    #query = "Comunidad AND Frodo"
     print(ii.retrieve(query))

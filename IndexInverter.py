@@ -159,7 +159,7 @@ class IndexInverter:
 
         if ' AND ' in query:
             A = query.split(' AND ')[0]
-            B = ''.join(query.split(' AND ')[1:])
+            B = ' AND '.join(query.split(' AND ')[1:])
             if not B:
                 return []
             if B[0] == '(' and B[-1] == ')':
@@ -168,7 +168,7 @@ class IndexInverter:
 
         if ' OR ' in query:
             A = query.split(' OR ')[0]
-            B = ''.join(query.split(' OR ')[1:])
+            B = ' OR '.join(query.split(' OR ')[1:])
             if not B:
                 return A
             if B[0] == '(' and B[-1] == ')':
@@ -177,7 +177,7 @@ class IndexInverter:
 
         if ' AND-NOT ' in query:
             A = query.split(' AND-NOT ')[0]
-            B = ''.join(query.split(' AND-NOT ')[1:])
+            B = ' AND-NOT '.join(query.split(' AND-NOT ')[1:])
             if not B:
                 return A
             if B[0] == '(' and B[-1] == ')':
@@ -195,6 +195,6 @@ if __name__ == '__main__':
     ii = IndexInverter()
     #query = input()
     start = time.time()
-    query = "(Jinetes OR Muerte OR Luz) AND-NOT Gandalf"
+    query = "Jinetes AND Muerte AND Luz"
     end = time.time()
     print("Recovered:", ii.retrieve(query), "\nTime taken:", (end - start)*1e6, "microseconds")

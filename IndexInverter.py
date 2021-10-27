@@ -109,13 +109,25 @@ class IndexInverter:
             if A[i] < B[j]:
                 result.append(A[i])
                 i += 1
-            elif A[i] > B[j]:
-                result.append(B[i])
-                j += 1
             else:
-                result.append(A[i])
-                i += 1
+                result.append(B[j])
                 j += 1
+
+        while i < len(A):
+            if not result:
+                result.append(A[i])
+            if A[i] != result[-1]:
+                result.append(A[i])
+            i += 1
+
+        while j < len(B):
+            if not result:
+                result.append(B[j])
+            elif B[j] != result[-1]:
+                result.append(B[j])
+            j += 1
+        
+        result = sorted(set(result))
         return result
     
     def queryANDNOT(self, A, B):
@@ -139,12 +151,20 @@ class IndexInverter:
 
         if ' AND ' in query:
             A, B = query.split(' AND ')
+            if B[0] == '(' and B[-1] == ')':
+                return self.queryAND(self.retrieve(B), self.retrieve(A))
             return self.queryAND(self.retrieve(A), self.retrieve(B))
+
         if ' OR ' in query:
             A, B = query.split(' OR ')
+            if B[0] == '(' and B[-1] == ')':
+                return self.queryOR(self.retrieve(B), self.retrieve(A))
             return self.queryOR(self.retrieve(A), self.retrieve(B))
+
         if ' AND-NOT ' in query:
             A, B = query.split(' AND-NOT ')
+            if B[0] == '(' and B[-1] == ')':
+                return self.queryANDNOT(self.retrieve(B), self.retrieve(A))
             return self.queryANDNOT(self.retrieve(A), self.retrieve(B))
 
         if query in self.stopwords:
@@ -155,7 +175,7 @@ class IndexInverter:
 
 if __name__ == '__main__':
     ii = IndexInverter()
-    query = input()
+    #query = input()
     #query = "Comunidad AND Frodo AND-NOT Gondor"
-    #query = "Comunidad AND Frodo"
+    query = "historias OR (Comunidad AND Frodo)"
     print(ii.retrieve(query))

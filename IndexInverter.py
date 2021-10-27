@@ -5,6 +5,9 @@ from nltk.stem.snowball import SpanishStemmer
 
 class IndexInverter:
     def __init__(self):
+        """
+        self.index: Inverted Index
+        """
         self.index = {}
         self.stopwords = {}
         if not self.loadIndex():
@@ -49,9 +52,9 @@ class IndexInverter:
         Method that will split a document into a list of words
         and add each of them to the self.index. 
         """
-        tokens = word_tokenize(content)
-        tokens = self._normalize(tokens)
-        tokens = self._reduce(tokens)
+        tokens = word_tokenize(content)  #generates token list from content
+        tokens = self._normalize(tokens) #removes stopwords
+        tokens = self._reduce(tokens)    #stemming
 
         for token in tokens:
             if token in self.index:
@@ -83,11 +86,60 @@ class IndexInverter:
         with open('inverted_index.json', 'w') as f:
             json.dump(self.index, f)
 
+    def queryAND(self, A, B):
+        i = 0
+        j = 0
+        result = []
+        while i < len(A) and j < len(B):
+            if A[i] < B[j]:
+                i += 1
+            elif A[i] > B[j]:
+                j += 1
+            else:
+                result.append(A[i])
+                i += 1
+                j += 1
+        return result
+
+    def queryOR(self, A, B):
+        i = 0
+        j = 0
+        result = []
+        while i < len(A) and j < len(B):
+            if A[i] < B[j]:
+                result.append(A[i])
+                i += 1
+            elif A[i] > B[j]:
+                result.append(B[i])
+                j += 1
+            else:
+                result.append(A[i])
+                i += 1
+                j += 1
+        return result
+    
+    def queryANDNOT(self, A, B):
+        pass
 
     def retrieve(self, query):
-        pass
+        query = query.rstrip(')')
+        query = query.lstrip('(')
+
+        if ' AND ' in query:
+            A, B = query.split(' AND ')
+            return self.queryAND(self.retrieve(A), self.retrieve(B))
+        if ' OR ' in query:
+            A, B = query.split(' OR ')
+            return self.queryOR(self.retrieve(A), self.retrieve(B))
+        if ' AND-NOT ' in query:
+            A, B = query.split(' AND-NOT ')
+            return self.queryANDNOT(self.retrieve(A), self.retrieve(B))
+
+        return self.index.get(query, [])
+
 
 if __name__ == '__main__':
     ii = IndexInverter()
-    query = input()
-    ii.retrieve(query)
+    #query = input()
+    query = "Comunidad AND Frodo AND-NOT Gondor"
+    print(ii.retrieve(query))

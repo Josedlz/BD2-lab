@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SpanishStemmer
 
@@ -25,6 +26,10 @@ class IndexInverter:
                 self.index = json.load(index)
                 return True
         return False
+    
+    def _lower(self, tokens):
+        for i in range(len(tokens)):
+            tokens[i] = tokens[i].lower()
 
     def _normalize(self, tokens):
         """
@@ -53,6 +58,7 @@ class IndexInverter:
         and add each of them to the self.index. 
         """
         tokens = word_tokenize(content)  #generates token list from content
+        self._lower(tokens)
         tokens = self._normalize(tokens) #removes stopwords
         tokens = self._reduce(tokens)    #stemming
 
@@ -146,27 +152,39 @@ class IndexInverter:
         return result
 
     def retrieve(self, query):
+        if not query:
+            return []
         query = query.rstrip(')')
         query = query.lstrip('(')
 
         if ' AND ' in query:
-            A, B = query.split(' AND ')
+            A = query.split(' AND ')[0]
+            B = ''.join(query.split(' AND ')[1:])
+            if not B:
+                return []
             if B[0] == '(' and B[-1] == ')':
                 return self.queryAND(self.retrieve(B), self.retrieve(A))
             return self.queryAND(self.retrieve(A), self.retrieve(B))
 
         if ' OR ' in query:
-            A, B = query.split(' OR ')
+            A = query.split(' OR ')[0]
+            B = ''.join(query.split(' OR ')[1:])
+            if not B:
+                return A
             if B[0] == '(' and B[-1] == ')':
                 return self.queryOR(self.retrieve(B), self.retrieve(A))
             return self.queryOR(self.retrieve(A), self.retrieve(B))
 
         if ' AND-NOT ' in query:
-            A, B = query.split(' AND-NOT ')
+            A = query.split(' AND-NOT ')[0]
+            B = ''.join(query.split(' AND-NOT ')[1:])
+            if not B:
+                return A
             if B[0] == '(' and B[-1] == ')':
                 return self.queryANDNOT(self.retrieve(B), self.retrieve(A))
             return self.queryANDNOT(self.retrieve(A), self.retrieve(B))
 
+        query = query.lower()
         if query in self.stopwords:
             return []
         query = self.stemmer.stem(query)
@@ -176,6 +194,7 @@ class IndexInverter:
 if __name__ == '__main__':
     ii = IndexInverter()
     #query = input()
-    #query = "Comunidad AND Frodo AND-NOT Gondor"
-    query = "historias OR (Comunidad AND Frodo)"
-    print(ii.retrieve(query))
+    start = time.time()
+    query = "(Jinetes OR Muerte OR Luz) AND-NOT Gandalf"
+    end = time.time()
+    print("Recovered:", ii.retrieve(query), "\nTime taken:", (end - start)*1e6, "microseconds")

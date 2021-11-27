@@ -99,7 +99,7 @@ class SPIMIIndexConstructor:
         
         while i < n1:
             wordA, postingListA = self.bufferA[i]
-            self._addPostingList(wordA, postingListA, currentOutputBlock, outputSizeLeft)
+            currentOutputBlock, outputSizeLeft = self._addPostingList(wordA, postingListA, currentOutputBlock, outputSizeLeft)
             
         while j < n2:
             wordB, postingListB = self.bufferA[j]

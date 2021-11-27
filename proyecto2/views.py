@@ -29,8 +29,8 @@ def invertedindexquery(request):
   retorno = []
   text = data['query']
   i = 0
-  print(text)
-  retorno = [str("1026814183042686976")]
+
+  retorno = cosine(text)
   # for id in index.query(text):
     #   retorno.append(str(id))
   #   if i == 5:

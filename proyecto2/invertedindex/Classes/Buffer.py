@@ -14,7 +14,7 @@ class Buffer:
         return word, postingList
 
     def load(self, document_name):
-        path = 'blocks'
+        path = ''
         filePath = os.path.join(path, document_name) 
         if self.filePath != filePath:
             self.filePath = filePath

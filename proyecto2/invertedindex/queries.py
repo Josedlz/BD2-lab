@@ -25,6 +25,20 @@ def BB(word, filenames):
             return []
     return []
 
+def seqSearch(word, filenames):
+    documents = []
+    for k in range((len(filenames))):
+        dic = readBlock(filenames, k)
+        if word in dic:
+            for document in dic[word]:
+                documents.append({'id': document['id'], 'count': document['count']})
+    return documents
+
+def seqSearch(word, filenames):
+    for i in range((len(filenames))):
+        if word in dic:
+            return dic[word]
+
 def tfidf(df, idf):
     return math.log10(1 + df) * idf
 
@@ -35,14 +49,15 @@ def cosine(consulta):
     consulta = consulta.split()
     consulta = { x: consulta.count(x) for x in consulta }
 
-    with open ("twittsLength.json") as f:
+    with open ("documentsLength.json") as f:
         length = json.load(f)
 
     N = len(length)
     scores = {}
 
     for word in consulta:
-        documents = BB(word)
+        # documents = BB(word)
+        documents = seqSearch(word, filenames)
         if len(documents) > 0:
             idf = math.log10(N/(len(documents)))
             consulta[word] = tfidf(consulta[word], idf)
@@ -57,4 +72,6 @@ def cosine(consulta):
 
     scores = dict(sorted(scores.items(), key=lambda x: x[1], reverse=True))
 
-    return scores
+    ans = [for e in scores]
+
+    return ans

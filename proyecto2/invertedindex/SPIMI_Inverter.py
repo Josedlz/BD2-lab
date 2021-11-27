@@ -20,7 +20,7 @@ class SPIMI_Inverter:
         self.stopwords = {}
         self.curFileNumber = curFileNumber
         self.stemmer = SpanishStemmer()
-        self.twittsLengthFile = "files/twittsLength.json"
+        self.documentsLengthFile = "files/documentsLength.json"
     
     def _lower(self, tokens):
         for i in range(len(tokens)):
@@ -32,8 +32,8 @@ class SPIMI_Inverter:
         """
         processed_tokens = []
         for token in tokens:
-            if token not in self.stopwords:
-                processed_tokens.append(token)
+            if token.lower() not in self.stopwords:
+                processed_tokens.append(token.lower())
         return processed_tokens
 
     def _reduce(self, tokens):
@@ -51,18 +51,22 @@ class SPIMI_Inverter:
             token_count[stemmed_token] += 1
         return token_count
 
-    def appendTwittLength(self, tokensDictionary, ID: int):
-        twittSize = 0
+    def getDocumentLength(self, tokensDictionary):
+        documentSize = 0
         for element in tokensDictionary:
-            twittSize += tokensDictionary[element][0]['tf']
-        
-        with open (self.twittsLengthFile, "r") as f:
-            dic = json.load(f)
-        
-        dic[ID] = twittSize
-        
-        with open (self.twittsLengthFile, "w") as f:
-            json.dump(dic, f)
+            documentSize += tokensDictionary[element][0]['tf']
+        return documentSize
+    
+    def appendLengths(self, documentsLengthLocal):
+
+        with open (self.documentsLengthFile, "r") as f:
+            documentsLength = json.load(f)
+
+        for document in documentsLengthLocal:
+            documentsLength[document] = documentsLengthLocal[document]
+
+        with open (self.documentsLengthFile, "w") as f:
+            json.dump(documentsLength, f)
 
     def generateDictionary(self, ID: int, content: str):
         """
@@ -82,7 +86,7 @@ class SPIMI_Inverter:
             self.index[token].append({'id': ID, 'tf': tf})
             temp[token].append({'id': ID, 'tf': tf})
 
-        self.appendTwittLength(temp, ID)
+        return self.getDocumentLength(temp)
 
     def writeBlockToDisk(self):
         """
@@ -93,13 +97,19 @@ class SPIMI_Inverter:
             json.dump(self.index, f)
 
     def parseNextBlock(self):
+
+        documentsLength = {}
+
         #First we read the stopwords
         with open('stopwords.txt') as stopwords:
             self.stopwords = set(stopwords.read().split('\n'))
 
         #We populate the index
         for document in self.block:
-            self.generateDictionary(document['id'], document['text'])
+            documentLength = self.generateDictionary(document['id'], document['text'])
+            documentsLength[document['id']] = documentLength
+        
+        self.appendLengths(documentsLength)
         
         #We eliminate duplicates and sort entries
         for word in self.index:

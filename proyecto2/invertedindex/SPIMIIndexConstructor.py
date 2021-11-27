@@ -162,9 +162,11 @@ class SPIMIIndexConstructor:
     
 if __name__ == '__main__':
     bsbi = SPIMIIndexConstructor()
-    bsbi.generate()
+    #bsbi.generate()
     path = os.getcwd()
-    #files = []
-    #for i in range(16):
-    #    files.append(f"block_{i}.json")
-    #bsbi.mergeBlocks(files, 0, len(files)-1)
+    files = []
+    for i in range(32):
+        files.append(f"files/blocks/block_{i}.json")
+    bsbi.mergeBlocks(files, 0, len(files)-1)
+    print("termine bitch")
+    

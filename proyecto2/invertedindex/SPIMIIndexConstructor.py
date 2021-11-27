@@ -10,8 +10,6 @@ from SPIMI_Inverter import SPIMI_Inverter
 
 class SPIMIIndexConstructor:
     def __init__(self):
-        #Size in bytes
-        self.N = 0
 
         #Average block size
         self.blockSize = 0
@@ -153,7 +151,6 @@ class SPIMIIndexConstructor:
         data_path = 'files/data_elecciones'
         path = os.path.join(root, data_path)
 
-        self.N = len(os.listdir(path))
         for curFileNumber, file in enumerate(os.listdir(path)):
             with open(os.path.join(path, file), 'r') as f:
                 data = json.load(f)
@@ -165,9 +162,9 @@ class SPIMIIndexConstructor:
     
 if __name__ == '__main__':
     bsbi = SPIMIIndexConstructor()
-    #bsbi.generate()
+    bsbi.generate()
     path = os.getcwd()
-    files = []
-    for i in range(16):
-        files.append(f"block_{i}.json")
-    bsbi.mergeBlocks(files, 0, len(files)-1)
+    #files = []
+    #for i in range(16):
+    #    files.append(f"block_{i}.json")
+    #bsbi.mergeBlocks(files, 0, len(files)-1)

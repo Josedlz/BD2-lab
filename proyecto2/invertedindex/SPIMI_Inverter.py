@@ -20,7 +20,7 @@ class SPIMI_Inverter:
         self.stopwords = {}
         self.curFileNumber = curFileNumber
         self.stemmer = SpanishStemmer()
-        self.N = 0
+        self.twittsLengthFile = "files/twittsLength.json"
     
     def _lower(self, tokens):
         for i in range(len(tokens)):
@@ -51,6 +51,19 @@ class SPIMI_Inverter:
             token_count[stemmed_token] += 1
         return token_count
 
+    def appendTwittLength(self, tokensDictionary, ID: int):
+        twittSize = 0
+        for element in tokensDictionary:
+            twittSize += tokensDictionary[element][0]['tf']
+        
+        with open (self.twittsLengthFile, "r") as f:
+            dic = json.load(f)
+        
+        dic[ID] = twittSize
+        
+        with open (self.twittsLengthFile, "w") as f:
+            json.dump(dic, f)
+
     def generateDictionary(self, ID: int, content: str):
         """
         Method that will split a document into a list of words
@@ -60,17 +73,23 @@ class SPIMI_Inverter:
         tokens = self._normalize(tokens) #removes stopwords
         tokens = self._reduce(tokens)    #stemming
 
+        temp = {}
         for token, tf in tokens.items():
+            if token not in temp:
+                temp[token] = []
             if token not in self.index:
                 self.index[token] = []
             self.index[token].append({'id': ID, 'tf': tf})
+            temp[token].append({'id': ID, 'tf': tf})
+
+        self.appendTwittLength(temp, ID)
 
     def writeBlockToDisk(self):
         """
         Writing the self.index to secondary memory
         """
         fileName = 'block_' + str(self.curFileNumber) + '.json'
-        with open('blocks/' + fileName, 'w') as f:
+        with open('files/blocks/' + fileName, 'w') as f:
             json.dump(self.index, f)
 
     def parseNextBlock(self):

@@ -2,9 +2,9 @@ from Classes.Buffer import Buffer
 from helpers.sorting import mergeLists
 from helpers.system import getSize
 
-import numpy as np
 import os 
 import json
+import logging
 
 from SPIMI_Inverter import SPIMI_Inverter   
 
@@ -25,7 +25,7 @@ class SPIMIIndexConstructor:
         self.outputBuffer = {}
 
     def write_buffer(self, fileName, buffer):
-        with open(fileName) as out:
+        with open(fileName, 'w') as out:
             json.dump(buffer, out)
 
     def _getBlocksMetadata(self):
@@ -52,9 +52,9 @@ class SPIMIIndexConstructor:
             outputSizeLeft -= postingListSize
             self.outputBuffer[word] = postingList
         else:
-            lastIndex = ratio*(len(postingListSize)-1)
+            lastIndex = ratio*(len(postingList)-1)
             self.outputBuffer[word] = postingList[:lastIndex]
-            self.write_buffer(currentOutputBlock['filePath'])
+            self.write_buffer(currentOutputBlock['filePath'], self.outputBuffer)
             currentOutputBlock = self.blocksMetaData[1]
             outputSizeLeft = self.blocksMetaData[1]['fileSize']
             self.outputBuffer.clear()
@@ -99,18 +99,24 @@ class SPIMIIndexConstructor:
         while i < n1:
             wordA, postingListA = self.bufferA[i]
             currentOutputBlock, outputSizeLeft = self._addPostingList(wordA, postingListA, currentOutputBlock, outputSizeLeft)
+            i += 1
             
         while j < n2:
             wordB, postingListB = self.bufferA[j]
             self._addPostingList(wordB, postingListB, currentOutputBlock, outputSizeLeft)
+            j += 1
 
         return
 
     def merge(self, documents, l, m, r):
         L = documents[l : m+1]
-        R = documents[m+1 : l+r+1]
+        R = documents[m+1 : r+1]
+        logging.info("Merging blocks:", L, "and", R)
+        print("Merging blocks:", L, "and", R)
 
         for left, right in zip(L, R):
+            logging.info("Comparing:", left, "and", right)
+            print("Comparing:", left, "and", right)
             self._loadBuffers(left, right)
             self._sortBuffers()
 

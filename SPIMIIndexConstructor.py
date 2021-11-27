@@ -19,8 +19,8 @@ class SPIMIIndexConstructor:
         #Holds a mapping between words and blocks
         self.blocksMetaData = {}
 
-        self.bufferA = Buffer()
-        self.bufferB = Buffer()
+        self.bufferA = Buffer({})
+        self.bufferB = Buffer({})
 
         self.outputBuffer = {}
 
@@ -40,10 +40,9 @@ class SPIMIIndexConstructor:
         return [objA, objB]
 
     def _loadBuffers(self, documentA, documentB):
-        self.blocksMetaData = self._getBlocksMetadata() 
         self.bufferA.load(documentA)
         self.bufferB.load(documentB)
-    
+        self.blocksMetaData = self._getBlocksMetadata() 
     
     def _addPostingList(self, word, postingList, currentOutputBlock, outputSizeLeft):
         postingListSize = getSize(postingList)
@@ -51,7 +50,7 @@ class SPIMIIndexConstructor:
 
         if ratio >= 1 or currentOutputBlock['filePath'] == self.blocksMetaData[1]['filePath']:
             outputSizeLeft -= postingListSize
-            self.outputBuffer[word] = postingListSize
+            self.outputBuffer[word] = postingList
         else:
             lastIndex = ratio*(len(postingListSize)-1)
             self.outputBuffer[word] = postingList[:lastIndex]
@@ -108,7 +107,7 @@ class SPIMIIndexConstructor:
         return
 
     def merge(self, documents, l, m, r):
-        L = documents[l : m+2]
+        L = documents[l : m+1]
         R = documents[m+1 : l+r+1]
 
         for left, right in zip(L, R):
@@ -153,11 +152,13 @@ class SPIMIIndexConstructor:
                 spimi.parseNextBlock()
                 spimi.writeBlockToDisk()
 
-        self.blockSize = self._getAverageBlockSize()
-
         self.mergeBlocks()
     
 if __name__ == '__main__':
     bsbi = SPIMIIndexConstructor()
-    bsbi.generate()
-    bsbi.mergeBlocks()
+    #bsbi.generate()
+    path = os.getcwd()
+    files = []
+    for i in range(16):
+        files.append(f"block_{i}.json")
+    bsbi.mergeBlocks(files, 0, len(files)-1)

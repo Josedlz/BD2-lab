@@ -1,8 +1,7 @@
 import os 
-import sys
 import json
 
-from IndexedOrderedDict import IndexedOrderedDict
+from Classes.IndexedOrderedDict import IndexedOrderedDict
 from helpers.system import getSize
 
 class Buffer:

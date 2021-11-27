@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from typing import Union
 
 class IndexedOrderedDict:
@@ -12,7 +11,7 @@ class IndexedOrderedDict:
     getCurrent().
     """
     def __init__(self, dictionary):
-        self.sortedDict = OrderedDict(sorted(dictionary.items()))
+        self.sortedDict = dict(sorted(dictionary.items()))
         self.keys = list(self.sortedDict.keys())
         self.max = len(self.keys)
         self.i = 0
@@ -27,7 +26,7 @@ class IndexedOrderedDict:
 
     def get(self, pos: int) -> Union[int, bool]:
         if pos < (self.max - 1):
-            word = self.keys[self.i]
+            word = self.keys[pos]
             result = self.sortedDict[word]
             return word, result
         return False, []

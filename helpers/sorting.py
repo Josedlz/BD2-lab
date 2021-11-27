@@ -7,11 +7,11 @@ def mergeLists(L, R):
     j = 0
 
     while i < n1 and j < n2:
-        if L[i] == R[j]:
+        if L[i]['id'] == R[j]['id']:
             arr.append(L[i])
             i += 1
             j += 1
-        elif L[i] < R[j]:
+        elif L[i]['id'] < R[j]['id']:
             arr.append(L[i])
             i += 1
         else:

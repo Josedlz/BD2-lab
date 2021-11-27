@@ -10,7 +10,6 @@ from SPIMI_Inverter import SPIMI_Inverter
 
 class SPIMIIndexConstructor:
     def __init__(self):
-
         #Average block size
         self.blockSize = 0
 
@@ -52,7 +51,8 @@ class SPIMIIndexConstructor:
             self.outputBuffer[word] = postingList
         else:
             lastIndex = ratio*(len(postingList)-1)
-            self.outputBuffer[word] = postingList[:lastIndex]
+            if lastIndex != 0:
+                self.outputBuffer[word] = postingList[:lastIndex]
             self.write_buffer(currentOutputBlock['filePath'], self.outputBuffer)
             currentOutputBlock = self.blocksMetaData[1]
             outputSizeLeft = self.blocksMetaData[1]['fileSize']
@@ -78,9 +78,9 @@ class SPIMIIndexConstructor:
         n1 = self.bufferA.getLength()
         n2 = self.bufferB.getLength()
 
-        while i < n1 and i < n2:
+        while i < n1 and j < n2:
             wordA, postingListA = self.bufferA[i]
-            wordB, postingListB = self.bufferA[j]
+            wordB, postingListB = self.bufferB[j]
 
             if wordA == wordB:
                 mergedPostingList = mergeLists(postingListA, postingListB)
@@ -148,7 +148,7 @@ class SPIMIIndexConstructor:
         """       
 
         root = os.getcwd()
-        data_path = 'files/data_elecciones'
+        data_path = 'proyecto2/invertedindex/files/data_elecciones'
         path = os.path.join(root, data_path)
 
         for curFileNumber, file in enumerate(os.listdir(path)):
@@ -157,8 +157,6 @@ class SPIMIIndexConstructor:
                 spimi = SPIMI_Inverter(data, curFileNumber)   
                 spimi.parseNextBlock()
                 spimi.writeBlockToDisk()
-
-        self.mergeBlocks()
     
 if __name__ == '__main__':
     bsbi = SPIMIIndexConstructor()

@@ -25,6 +25,7 @@ class SPIMIIndexConstructor:
         self.outputBuffer = {}
 
     def write_buffer(self, fileName, buffer):
+        print("Writing", fileName)
         with open(fileName, 'w') as out:
             json.dump(buffer, out)
 
@@ -102,10 +103,12 @@ class SPIMIIndexConstructor:
             i += 1
             
         while j < n2:
-            wordB, postingListB = self.bufferA[j]
+            wordB, postingListB = self.bufferB[j]
             self._addPostingList(wordB, postingListB, currentOutputBlock, outputSizeLeft)
             j += 1
 
+        self.write_buffer(self.blocksMetaData[1]['filePath'], self.outputBuffer)
+        self.outputBuffer.clear()
         return
 
     def merge(self, documents, l, m, r):

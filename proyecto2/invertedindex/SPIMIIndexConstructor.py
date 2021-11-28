@@ -119,6 +119,7 @@ class SPIMIIndexConstructor:
         return
 
     def merge(self, blocks, l, m, r):
+        #Main procedure
         L = blocks[l : m+1]
         R = blocks[m+1 : r+1]
         logging.info("Merging blocks:", L, "and", R)

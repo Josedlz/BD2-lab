@@ -42,6 +42,7 @@ class SPIMIIndexConstructor:
         self.outputBlocks[self.outputBlockIterator]['sizeLeft'] -= amount
 
     def _loadBlocksMetadata(self, blocksToMerge):
+        self.outputBlockIterator = 0
         metaData = []
         for blockFile in blocksToMerge:
             blockFileMod = blockFile.rstrip('.json') + '_temp.json'
@@ -51,10 +52,9 @@ class SPIMIIndexConstructor:
             metaData.append(blockMetaData) 
         self.outputBlocks = metaData
 
-    def _loadBuffers(self, documentA, documentB, blocksToMerge):
+    def _loadBuffers(self, documentA, documentB):
         self.bufferA.load(documentA)
         self.bufferB.load(documentB)
-        self._loadBlocksMetadata(blocksToMerge)
     
     def _addPostingList(self, word, postingList):
         postingListSize = getSize(postingList)
@@ -124,11 +124,14 @@ class SPIMIIndexConstructor:
         logging.info("Merging blocks:", L, "and", R)
         print("Merging blocks:", L, "and", R)
 
+        self._loadBlocksMetadata(L + R)
         for left, right in zip(L, R):
             logging.info("Comparing:", left, "and", right)
-            print("Comparing:", left, "and", right)
-            self._loadBuffers(left, right, L + R)
+            print("Comparing:", left.lstrip('proyecto2/invertedindex/files/blocks/'), "and", right.lstrip('proyecto2/invertedindex/files/blocks/'))
+            self._loadBuffers(left, right)
             self._sortBuffers()
+
+        print("Merged blocks:", L, "and", R)
         
         #Clear the temporary files        
         print("Clearing temporary files")
@@ -140,7 +143,7 @@ class SPIMIIndexConstructor:
             with open(mergedBlock, 'w') as out:
                 json.dump(content, out)
 
-            os.remove(blockFileMod) # one file at a time
+                os.remove(blockFileMod) # one file at a time
 
     def mergeBlocks(self, documents, l, r):
         if l >= r:

@@ -101,7 +101,7 @@ class SPIMI_Inverter:
         documentsLength = {}
 
         #First we read the stopwords
-        with open('stopwords.txt') as stopwords:
+        with open('proyecto2/invertedindex/files/stopwords.txt') as stopwords:
             self.stopwords = set(stopwords.read().split('\n'))
 
         #We populate the index

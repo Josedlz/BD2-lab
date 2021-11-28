@@ -25,7 +25,7 @@ class IndexedOrderedDict:
         return False, []
 
     def get(self, pos: int) -> Union[int, bool]:
-        if pos < (self.max - 1):
+        if pos < self.max:
             word = self.keys[pos]
             result = self.sortedDict[word]
             return word, result

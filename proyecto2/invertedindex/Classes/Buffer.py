@@ -14,8 +14,7 @@ class Buffer:
         return word, postingList
 
     def load(self, document_name):
-        path = ''
-        filePath = os.path.join(path, document_name) 
+        filePath = document_name
         if self.filePath != filePath:
             self.filePath = filePath
             with open(filePath) as f:
@@ -24,9 +23,6 @@ class Buffer:
 
     def isComplete(self):
         return not self.dictionary.hasNext()
-
-    def getFilePath(self):
-        return self.filePath
 
     def getLength(self):
         return self.dictionary.getLength()

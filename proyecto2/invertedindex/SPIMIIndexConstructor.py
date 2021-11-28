@@ -118,9 +118,9 @@ class SPIMIIndexConstructor:
         self.outputBuffer.clear()
         return
 
-    def merge(self, documents, l, m, r):
-        L = documents[l : m+1]
-        R = documents[m+1 : r+1]
+    def merge(self, blocks, l, m, r):
+        L = blocks[l : m+1]
+        R = blocks[m+1 : r+1]
         logging.info("Merging blocks:", L, "and", R)
         print("Merging blocks:", L, "and", R)
 
@@ -145,13 +145,13 @@ class SPIMIIndexConstructor:
 
                 os.remove(blockFileMod) # one file at a time
 
-    def mergeBlocks(self, documents, l, r):
+    def mergeBlocks(self, blocks, l, r):
         if l >= r:
             return 
         m = (l + r - 1) // 2
-        self.mergeBlocks(documents, l, m)
-        self.mergeBlocks(documents, m+1, r)
-        self.merge(documents, l, m, r)
+        self.mergeBlocks(blocks, l, m)
+        self.mergeBlocks(blocks, m+1, r)
+        self.merge(blocks, l, m, r)
 
     def generate(self):
         """

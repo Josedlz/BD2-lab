@@ -7,7 +7,7 @@ import glob
 from pathlib import Path
 import json
 from django.http import JsonResponse, StreamingHttpResponse
-
+from proyecto2.invertedindex.queries import * 
 
 # from os.path import join
 # index = inverse_index()
@@ -31,9 +31,9 @@ def invertedindexquery(request):
   i = 0
 
   retorno = cosine(text)
-  # for id in index.query(text):
-    #   retorno.append(str(id))
-  #   if i == 5:
-  #       break
-  #   i = i + 1
+  for id in retorno:
+    retorno.append(str(id))
+    if i == 5:
+      break
+    i = i + 1
   return JsonResponse(json.dumps(retorno) , safe=False)

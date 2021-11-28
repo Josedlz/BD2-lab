@@ -1,10 +1,11 @@
 import os
 import json
 import math
+from nltk.stem.snowball import SpanishStemmer
 
 def readBlock(filenames, k):
-    filePath = os.path.join("files/blocks", filenames[k])
-    with open (filePath) as f:
+    # filePath = os.path.join("proyecto2/invertedindex/files/blocks", filenames[k])
+    with open ("proyecto2/invertedindex/files/blocks/"+ filenames[k]) as f:
         return json.load(f)
 
 def BB(word, filenames):
@@ -31,25 +32,25 @@ def seqSearch(word, filenames):
         dic = readBlock(filenames, k)
         if word in dic:
             for document in dic[word]:
-                documents.append({'id': document['id'], 'count': document['count']})
+                documents.append({'id': document['id'], 'tf': document['tf']})
     return documents
 
-def seqSearch(word, filenames):
-    for i in range((len(filenames))):
-        if word in dic:
-            return dic[word]
 
 def tfidf(df, idf):
     return math.log10(1 + df) * idf
 
 def cosine(consulta):
 
-    filenames = sorted(os.listdir("files/blocks"))
+    filenames = os.listdir("proyecto2/invertedindex/files/blocks")
 
+    stemmer = SpanishStemmer()
     consulta = consulta.split()
+    for i in range(len(consulta)):
+        consulta[i] = stemmer.stem(consulta[i])
+
     consulta = { x: consulta.count(x) for x in consulta }
 
-    with open ("documentsLength.json") as f:
+    with open ("proyecto2/invertedindex/files/documentsLength.json") as f:
         length = json.load(f)
 
     N = len(length)
@@ -62,16 +63,18 @@ def cosine(consulta):
             idf = math.log10(N/(len(documents)))
             consulta[word] = tfidf(consulta[word], idf)
             for document in documents:
-                document['count'] = tfidf(document['count'], idf)
+                document['tf'] = tfidf(document['tf'], idf)
                 if document['id'] not in scores:
                     scores[document['id']] = 0
-                scores[document['id']] += consulta[word] * document['count']
+                scores[document['id']] += consulta[word] * document['tf']
 
     for document in scores:
-        scores[document] = scores[document]/length.get(str(document), None)
-
+        key_id = length.get(str(document), None)
+        if key_id:
+            scores[document] = scores[document]/length.get(str(document), None)
+    
     scores = dict(sorted(scores.items(), key=lambda x: x[1], reverse=True))
 
-    ans = [for e in scores]
-
+    ans = [e for e in scores]
+    # print("ans: ", ans)
     return ans
